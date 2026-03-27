@@ -1,0 +1,118 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+
+# --------------------------------------------------
+# 1. DATASET CREATION (Exp 1,2,4,5)
+# --------------------------------------------------
+np.random.seed(0)
+
+df = pd.DataFrame({
+    "Time_Spent": np.random.randint(5, 60, 50),
+    "Items_Viewed": np.random.randint(1, 20, 50),
+    "Discount": np.random.randint(0, 50, 50),
+    "Customer_Rating": np.random.randint(1, 5, 50)
+})
+
+df["Purchase_Amount"] = (
+    df["Time_Spent"]*10 +
+    df["Items_Viewed"]*15 +
+    df["Discount"]*5 +
+    np.random.randint(50,100,50)
+)
+
+print("Dataset:\n", df.head())
+
+# --------------------------------------------------
+# 2. DATA FILTERING (Exp concept)
+# --------------------------------------------------
+filtered = df[df["Purchase_Amount"] > 800]
+print("\nHigh Value Customers:\n", filtered)
+
+# --------------------------------------------------
+# 3. HANDLING MISSING VALUES (Exp 8)
+# --------------------------------------------------
+df.loc[0, "Time_Spent"] = np.nan
+
+print("\nMissing Before:\n", df.isnull().sum())
+
+df.fillna(df.mean(), inplace=True)
+
+print("\nMissing After:\n", df.isnull().sum())
+
+# --------------------------------------------------
+# 4. DATA CLEANING (Exp 8)
+# --------------------------------------------------
+df.drop_duplicates(inplace=True)
+
+# --------------------------------------------------
+# 5. NUMPY OPERATIONS (Exp 6 concept)
+# --------------------------------------------------
+arr = df.values
+
+print("\nMean:", np.mean(arr))
+print("Sum:", np.sum(arr))
+
+# --------------------------------------------------
+# 6. CORRELATION ANALYSIS (Exp 1,9)
+# --------------------------------------------------
+corr = df.corr()
+print("\nCorrelation Matrix:\n", corr)
+
+# --------------------------------------------------
+# 7. HEATMAP VISUALIZATION (Exp 1,10)
+# --------------------------------------------------
+plt.figure(figsize=(6,5))
+sns.heatmap(corr, annot=True, cmap="coolwarm")
+plt.title("Correlation Heatmap")
+plt.show()
+
+# --------------------------------------------------
+# 8. REGRESSION MODEL (Exp 2,4)
+# --------------------------------------------------
+X = df[["Time_Spent","Items_Viewed","Discount","Customer_Rating"]]
+y = df["Purchase_Amount"]
+
+model = LinearRegression()
+model.fit(X,y)
+
+print("\nRegression Coefficients:", model.coef_)
+print("R2 Score:", model.score(X,y))
+
+# --------------------------------------------------
+# 9. PREDICTION (FIXED WARNING)
+# --------------------------------------------------
+new_data = pd.DataFrame([[30,10,20,4]],
+                        columns=["Time_Spent","Items_Viewed","Discount","Customer_Rating"])
+
+pred = model.predict(new_data)
+print("\nPredicted Purchase Amount:", pred)
+
+# --------------------------------------------------
+# 10. VISUALIZATION (Exp 10)
+# --------------------------------------------------
+plt.scatter(df["Time_Spent"], df["Purchase_Amount"])
+plt.xlabel("Time Spent")
+plt.ylabel("Purchase Amount")
+plt.title("Time Spent vs Purchase")
+plt.grid(True)
+plt.show()
+
+# --------------------------------------------------
+# 11. Z-TEST (Exp 7)
+# --------------------------------------------------
+mu = 90
+x_bar = 95
+sigma = 8
+n = 50
+
+z = (x_bar - mu) / (sigma/np.sqrt(n))
+
+print("\nZ-value:", z)
+
+if abs(z) > 1.96:
+    print("Reject Null Hypothesis")
+else:
+    print("Accept Null Hypothesis")
